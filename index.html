@@ -11,9 +11,39 @@
 <body>
 <script type="text/javascript">
 
-	console.log(eq.arr([1,2,3,4,[1,2,3]],[1,2,3,4,[1,2,3]],[1,2,3,4,[1,2,3]],[1,2,3,4,[1,2,3]]))
+	console.log(eq([1,2,3,4,[1,2,3]],[1,2,3,4,[1,2,3]],[1,2,3,4,[1,2,3]],[1,2,3,4,[1,2,3]]))
 
-	console.log(eq.obj({a:{name: 'Sam',fn: function(a){return a}},b: [1,2,3]},{a: {name: 'Sam',fn: function(a){return a}},b:[1,2,3]}))
+	console.log(eq({a:{name: 'Sam',fn: function(a){return a}},b: [1,2,3]},{a: {name: 'Sam',fn: function(a){return a}},b:[1,2,3]}))
+
+
+	var a = {
+		id: '12x3a45'
+		, name: 'Jack'
+		, class: {
+			num: 12
+			, spec: 'C'
+		}
+		, school: 'LLG'
+		, marks: [4,4,3,5,5,4,5]
+	}
+		, b = {
+		id: '12x3a40'
+		, name: 'Jack'
+		, class: {
+			num: 12
+			, spec: 'C'
+		}
+		, school: 'LLG'
+		, friends: ['X','Y']
+	}
+
+
+	eq.add('student', function(a,b) {
+		var eq = this
+		return eq(a.name, b.name) && eq(a.friends, b.friends)
+	})
+
+	console.log(eq.student(a,b))
 
 </script>	
 

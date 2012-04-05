@@ -16,7 +16,7 @@
 	}
 
 
-	function baseEq_ (a,b) {
+	baseEq_ = function (a,b) {
 		if (_.isArray(a) && _.isArray(b))	return arrayEq_(a,b)
 
 		if ((_.isFunction(a) && _.isFunction(b)) || (_.isDate(a) && _.isDate(b)) || (_.isRegExp(a) && _.isRegExp(b)))
@@ -29,14 +29,20 @@
 	function baseEq () {
 		var a = toArr.call(arguments)
 			, i = 0
+			, f
+		if (a.length>2 && _.isFunction(_.last(a))) {
+			f = _.last(a)
+			a = _.initial(a)
+		}
+		else f = baseEq_
 		if (a.length == 1) a = a[0]
 
-		while ((i < a.length-1) && (baseEq_(a[i], a[i+1]))) i++
-		return (i == a.length-1)
+		while (i<a.length-1 && f.call(eq,a[i], a[i+1])) i++
+		return i == a.length-1
 	}
 
 	function arrayEq_ (a,b) {
-		return baseEq(zipWith(a,b,function(x,y) { return baseEq(x,y) }))
+		return _.reduce(zipWith(a,b,function(x,y) { return baseEq(x,y) }), function(b,a){return b == a}, true)
 	}
 	function arrayEq (l) {
 		if (l.length == 2) return arrayEq_(l[0],l[1])
@@ -64,15 +70,18 @@
 
 	function eq () {
 		var as = toArr.call(arguments)
+		if (_.isEmpty(as)) return true
 
-		if (!_.isEmpty(as)) return baseEq(as)
+		if (_.isArray(_.first(as))) return eq.arr.apply(this,as)
+		if (_.isObject(_.first(as))) return eq.obj.apply(this,as)
+		return baseEq(as)
 	}
 
 	eq.constructor.prototype.arr = function() {
-		var args = checkArgs(arguments, 'isArray')
+		var as = checkArgs(arguments, 'isArray')
 		if (as == null) return false
 
-		return arrayEq(args)
+		return arrayEq(as)
 	}
 
 	eq.constructor.prototype.obj = function() {
@@ -80,6 +89,19 @@
 		if (as == null) return false
 
 		return objectEq(as)
+	}
+
+	eq.constructor.prototype.add = function(n,f) {
+		eq.constructor.prototype[n] = function() {
+			var as = toArr.call(arguments)
+			if (_.isEmpty(as)) return true
+
+			var i = 0
+			as.push(f)
+			
+			while (i<as.length-1 && baseEq.apply(null,as)) i++
+			return i == as.length-1
+		}
 	}
 
 	return eq
